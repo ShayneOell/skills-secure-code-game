@@ -80,7 +80,8 @@ bool update_setting(int user_id, const char *index, const char *value) {
         return false;
 
     v = strtol(value, &endptr, 10);
-    if (*endptr || i >= SETTINGS_COUNT)
+    // negative index vulnerability fixed here
+    if (*endptr || i < 0 || i >= SETTINGS_COUNT)
         return false;
     accounts[user_id]->setting[i] = v;
     return true;
@@ -96,8 +97,7 @@ bool is_admin(int user_id) {
 }
 
 // Returns the username of the specified user
-const char* username(int user_id) {
-    // Returns an error for invalid user ids
+const char* username(int user_id) {    
     if (user_id < 0 || user_id >= MAX_USERS) {
         fprintf(stderr, "invalid user id");
         return NULL;

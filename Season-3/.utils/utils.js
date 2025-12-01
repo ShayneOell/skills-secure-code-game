@@ -5,7 +5,7 @@
 
 import OpenAI from "openai";
 import assert from 'node:assert';
-import { verbose } from "sqlite3";
+  import { verbose } from "sqlite3";
 import chalk from "chalk";
 
 const ghToken = process.env["GITHUB_TOKEN"];

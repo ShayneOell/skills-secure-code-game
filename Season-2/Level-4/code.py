@@ -16,7 +16,7 @@
 
 import os
 import re
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, escape
 app = Flask(__name__)
 
 # Set the absolute path to the template directory
@@ -32,21 +32,23 @@ planet_data = {
     "Jupiter": "The largest planet in the Solar System and known for its great red spot.",
 }
 
+# Valid planet names for strict validation
+VALID_PLANETS = {"Mercury", "Venus", "Earth", "Mars", "Jupiter"}
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        planet = request.form.get('planet')
-        sanitized_planet = re.sub(r'[<>{}[\]]', '', planet if planet else '')
-
-        if sanitized_planet:
-            if 'script' in sanitized_planet.lower() :
-                return '<h2>Blocked</h2></p>'
-    
+        planet = request.form.get('planet', '').strip()
+        
+        # Validate against known planet names (whitelist approach)
+        if planet in VALID_PLANETS:
             return render_template('details.html', 
-                                   planet=sanitized_planet, 
-                                   info=get_planet_info(sanitized_planet))
+                                   planet=planet,  # Safe since it's from whitelist
+                                   info=get_planet_info(planet))
         else:
-            return '<h2>Please enter a planet name.</h2>'
+            # For invalid planets, escape and return error
+            safe_planet = escape(planet)
+            return f'<h2>Invalid planet: {safe_planet}</h2><p>Please enter a valid planet name from our solar system.</p>'
 
     return render_template('index.html')
 
